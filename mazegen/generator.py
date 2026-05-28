@@ -1,6 +1,7 @@
 import random
 import sys
 from parser import MazeConfig
+from .solver import solve
 
 
 NORTH: int = 0b0001
@@ -17,7 +18,7 @@ class MazeGen:
     def __init__(self, config: MazeConfig) -> None:
         self.config: MazeConfig = config
         self.grid: list[list[int]] = []
-        self.solution: list[int] = []
+        self.solution: list[tuple[int, int]] = []
         self.pattern_42: set[tuple[int, int]] = set()
 
     def generate(self) -> None:
@@ -36,6 +37,13 @@ class MazeGen:
                 f"{self.config.exit_} inside the 42 pattern"
                 )
         self._carve_passages(self.config.entry[0], self.config.entry[1])
+        self.solution = solve(
+            self.grid,
+            self.config.width,
+            self.config.height,
+            self.config.entry,
+            self.config.exit_
+            )
 
     def _init_grid(self) -> None:
         for _ in range(self.config.height):
