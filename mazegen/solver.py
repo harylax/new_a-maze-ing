@@ -25,7 +25,7 @@ def solve(
     while queue:
         x, y = queue.popleft()
         if (x, y) == exit_:
-            return _reconstruct_path(came_from, entry, exit_)
+            return _reconstruct_path(came_from, exit_)
         for direction, (dx, dy) in directions.items():
             nx, ny = x + dx, y + dy
             if not 0 <= nx < width:
@@ -43,7 +43,6 @@ def solve(
 
 def _reconstruct_path(
         came_from: dict[tuple[int, int], tuple[int, int] | None],
-        entry: tuple[int, int],
         exit_: tuple[int, int]
 ) -> list[tuple[int, int]]:
     path: list[tuple[int, int]] = []
