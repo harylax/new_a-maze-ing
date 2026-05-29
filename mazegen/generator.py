@@ -1,6 +1,6 @@
 import random
 import sys
-from parser import MazeConfig
+from config_parser import MazeConfig
 from .solver import solve
 
 
