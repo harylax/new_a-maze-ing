@@ -1,6 +1,5 @@
 .mypy_cache
 __pycache__
-mlx_CLXV
 mlx-*.whl
 output_validator.py
 venv

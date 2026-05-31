@@ -1,3 +1,3 @@
-from .generator import MazeGen, MazeGenError
+from .generator import MazeGen, MazeGenError, MazeGenDFS, MazeGenPrim
 
-__all__ = ['MazeGen', 'MazeGenError']
+__all__ = ['MazeGen', 'MazeGenError', 'MazeGenDFS', 'MazeGenPrim']

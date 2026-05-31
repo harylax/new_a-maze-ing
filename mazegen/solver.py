@@ -1,6 +1,5 @@
 from collections import deque
 
-
 NORTH: int = 0b0001
 EAST: int = 0b0010
 SOUTH: int = 0b0100
@@ -12,8 +11,11 @@ def solve(
         width: int,
         height: int,
         entry: tuple[int, int],
-        exit_: tuple[int, int]
-) -> list[tuple[int, int]]:
+        exit_: tuple[int, int],
+        pattern_42: set[tuple[int, int]] | None = None
+        ) -> list[tuple[int, int]]:
+    if pattern_42 is None:
+        pattern_42 = set()
     queue: deque[tuple[int, int]] = deque([entry])
     came_from: dict[tuple[int, int], tuple[int, int] | None] = {entry: None}
     directions: dict[int, tuple[int, int]] = {
@@ -28,9 +30,9 @@ def solve(
             return _reconstruct_path(came_from, exit_)
         for direction, (dx, dy) in directions.items():
             nx, ny = x + dx, y + dy
-            if not 0 <= nx < width:
+            if not (0 <= nx < width and 0 <= ny < height):
                 continue
-            if not 0 <= ny < height:
+            if (nx, ny) in pattern_42:
                 continue
             if (nx, ny) in came_from:
                 continue

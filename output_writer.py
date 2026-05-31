@@ -7,7 +7,7 @@ def write_maze(maze: MazeGen) -> None:
     maze_str: str = ""
     for row in maze.grid:
         for cell in row:
-            maze_str += f'{cell:X}'
+            maze_str += f'{cell._walls:X}'
         maze_str += '\n'
     directions_str: str = path_to_directions(maze.solution)
     content: str = (
