@@ -47,6 +47,7 @@ class MazeGen(ABC):
         self.grid: list[list[Cell]] = []
         self.solution: list[tuple[int, int]] = []
         self.pattern_42: set[tuple[int, int]] = set()
+        self.history: list[tuple[tuple[int, int], tuple[int, int]]] = []
 
     def generate(self) -> None:
         if self.config.seed is not None:
@@ -54,9 +55,11 @@ class MazeGen(ABC):
         self._init_grid()
         self.pattern_42 = draw_42(self.config.width, self.config.height)
         self._validate_entry_exit()
-        # self._apply_pattern_42()
+        self._apply_pattern_42()
         self._carve_passages()
-        # self._close_all_borders()
+        if not self.config.perfect:
+            self._add_loops()
+        self._close_all_borders()
         self.solution = solve(
             self._get_final_grid(),
             self.config.width,
@@ -64,6 +67,22 @@ class MazeGen(ABC):
             self.config.entry,
             self.config.exit_
             )
+
+    def _add_loops(self) -> None:
+        num_loops: int = (self.config.width * self.config.height) // 10
+        for _ in range(num_loops):
+            cx = random.randint(0, self.config.width - 1)
+            cy = random.randint(0, self.config.height - 1)
+            directions: list[tuple[int, int]] = [
+                (0, 1), (1, 0), (0, -1), (-1, 0)
+            ]
+            dx, dy = random.choice(directions)
+            nx, ny = cx + dx, cy + dy
+            if (cx, cy) in self.pattern_42 or (nx, ny) in self.pattern_42:
+                continue
+            if not self._is_valid_cell(nx, ny):
+                continue
+            self._remove_wall((cx, cy), (nx, ny))
 
     def _get_final_grid(self) -> list[list[int]]:
         final_grid: list[list[int]] = []
@@ -148,6 +167,7 @@ class MazeGen(ABC):
         if y < ny:
             self.grid[y][x].open_wall('South')
             self.grid[ny][nx].open_wall('North')
+        self.history.append((current, neighbor))
 
 
 class MazeGenDFS(MazeGen):
