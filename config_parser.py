@@ -15,6 +15,7 @@ class MazeConfig:
         self.output_file: str = "maze.txt"
         self.perfect: bool = True
         self.seed: int | None = None
+        self.algo: str = 'DFS'
 
     def parse_config(self) -> None:
         if len(argv) < 2:
@@ -38,6 +39,7 @@ class MazeConfig:
         self.output_file = config['OUTPUT_FILE']
         self.perfect = config['PERFECT']
         self.seed = config.get('SEED')
+        self.algo = config.get('ALGORITHM', 'DFS')
         self._validate_config()
 
     def _validate_config(self) -> None:
@@ -84,7 +86,7 @@ class MazeConfig:
         mandatory: set[str] = {
                 'WIDTH', 'HEIGHT', 'ENTRY', 'EXIT', 'OUTPUT_FILE', 'PERFECT'
         }
-        missing: set = mandatory.difference(raw.keys())
+        missing: set[str] = mandatory.difference(raw.keys())
         if missing:
             raise ConfigError(
                 "The following keys are missing: "

@@ -69,20 +69,27 @@ class MazeGen(ABC):
             )
 
     def _add_loops(self) -> None:
-        num_loops: int = (self.config.width * self.config.height) // 10
-        for _ in range(num_loops):
-            cx = random.randint(0, self.config.width - 1)
-            cy = random.randint(0, self.config.height - 1)
-            directions: list[tuple[int, int]] = [
-                (0, 1), (1, 0), (0, -1), (-1, 0)
-            ]
+        cells: list[tuple[int, int]] = []
+        for y in range(self.config.height):
+            for x in range(self.config.width):
+                if (x, y) in self.pattern_42:
+                    continue
+                cells.append((x, y))
+        random.shuffle(cells)
+        num_loops: int = len(cells) // 10
+        count: int = 0
+        for x, y in cells:
+            if count >= num_loops:
+                return
+            directions: list[tuple[int, int]] = [(1, 0), (0, 1)]
             dx, dy = random.choice(directions)
-            nx, ny = cx + dx, cy + dy
-            if (cx, cy) in self.pattern_42 or (nx, ny) in self.pattern_42:
+            nx, ny = x + dx, y + dy
+            if (nx, ny) in self.pattern_42:
                 continue
             if not self._is_valid_cell(nx, ny):
                 continue
-            self._remove_wall((cx, cy), (nx, ny))
+            self._remove_wall((x, y), (nx, ny))
+            count += 1
 
     def _get_final_grid(self) -> list[list[int]]:
         final_grid: list[list[int]] = []
@@ -194,8 +201,8 @@ class MazeGenDFS(MazeGen):
 
 
 class MazeGenPrim(MazeGen):
-    def _carve_passages(self):
-        return super()._carve_passages()
+    def _carve_passages(self) -> None:
+        self._prim()
 
     def _get_neighbors(
             self, current: tuple[int, int]
