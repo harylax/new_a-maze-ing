@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "a-maze-ing"
+version = "0.1.0"
+description = "Maze generator and solver with 42 pattern and MLX rendering"
+authors = ["rfuji-va", "haryandr"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+mlx = {path = "mlx-2.2-py3-none-any.whl"}
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^7.0"
+mypy = "^1.10"
+
+[tool.poetry.scripts]
+a-maze-ing = "a_maze_ing:main"
+
+[tool.poetry.build]
+generate-setup-file = false
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+ignore_missing_imports = true

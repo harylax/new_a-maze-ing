@@ -52,6 +52,7 @@ class MazeMLX:
         self.show_solution: bool = False
         self._animation_index: int = 0
         self._path_displayed: bool = False
+        self._is_animating_path: bool = False
         self.wall_color: int = WALL_COLORS[0]
 
     def _validate_size(self, screen_w: int, screen_h: int) -> None:
@@ -60,7 +61,11 @@ class MazeMLX:
             self.maze.config.width * min_cell_size > screen_w
             or self.maze.config.height * min_cell_size + 100 > screen_h
         ):
-            raise MazeRendererError("The size of the maze exceed screen size.")
+            raise MazeRendererError(
+                "The size of the maze exceed screen size, "
+                f"max width: {screen_w // min_cell_size}, "
+                f"max height: {screen_h // min_cell_size - 7}."
+                )
 
     def _cell_size(self) -> int:
         width = self.maze.config.width
@@ -94,7 +99,8 @@ class MazeMLX:
             self._draw_full_maze()
             self._animation_index = 0
             self._set_animation(self._path_animation)
-            self._path_displayed = True
+            self._path_displayed = False
+            self._is_animating_path = True
         else:
             self._fill_background()
             self._draw_full_maze()
@@ -202,17 +208,38 @@ class MazeMLX:
         )
         self._interactive_str()
         self._animation_index += 1
+        self._is_animating_path = False
+        self._path_displayed = True
 
     def _interactive_str(self) -> None:
-        self.mlx.mlx_string_put(
-            self.mlx_ptr,
-            self.win_ptr,
-            10,
-            self.win_height - 30,
-            TEXT_COLOR,
-            f"[a] {self.maze.config.algo.upper()} "
-            "| [r] regenerate | [p] path | [c] color | [esc] quit"
-            )
+        if self.win_width < 600:
+            self.mlx.mlx_string_put(
+                self.mlx_ptr,
+                self.win_ptr,
+                10,
+                self.win_height - 50,
+                TEXT_COLOR,
+                f"[a] {self.maze.config.algo.upper()} | "
+                "[r] regenerate | [p] path"
+                )
+            self.mlx.mlx_string_put(
+                self.mlx_ptr,
+                self.win_ptr,
+                10,
+                self.win_height - 25,
+                TEXT_COLOR,
+                "[c] color | [esc] quit"
+                )
+        else:
+            self.mlx.mlx_string_put(
+                self.mlx_ptr,
+                self.win_ptr,
+                10,
+                self.win_height - 30,
+                TEXT_COLOR,
+                f"[a] {self.maze.config.algo.upper()} | [r] regenerate | "
+                "[p] path | [c] color | [esc] quit"
+                )
 
     def _draw_42_pattern(self) -> None:
         for px, py in self.maze.pattern_42:
@@ -236,8 +263,8 @@ class MazeMLX:
     def _draw_entry_exit(self) -> None:
         sx, sy = self.maze.config.entry
         ex, ey = self.maze.config.exit_
-        self._draw_cell(1, sx, sy, ENTRY_COLOR)
-        self._draw_cell(1, ex, ey, EXIT_COLOR)
+        self._draw_cell(2, sx, sy, ENTRY_COLOR)
+        self._draw_cell(2, ex, ey, EXIT_COLOR)
 
     def _key_hook(self, keycode: int, param: Any) -> int:
         if keycode == 65307:
@@ -260,10 +287,13 @@ class MazeMLX:
             self.wall_color = random.choice(colors)
             self._draw_full_maze()
         elif keycode in [65293, 65421]:
-            if self._path_displayed:
+            if self._is_animating_path:
+                self.mlx.mlx_loop_hook(self.mlx_ptr, None, None)
                 self._show_path_without_animation()
+                self._is_animating_path = False
                 self._path_displayed = True
-                self._animation_index = 0
+            elif self._path_displayed:
+                self._show_path_without_animation()
             else:
                 self._draw_full_maze()
         return 0
