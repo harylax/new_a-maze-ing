@@ -15,11 +15,10 @@ debug:
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
-	find . -type d -name ".ruff_cache" -exec rm -rf {} +
 
 fclean: clean
 	rm -rf .venv
-	rm poetry.lock
+	rm -f poetry.lock
 
 lint:
 	poetry run flake8 . --exclude .venv
