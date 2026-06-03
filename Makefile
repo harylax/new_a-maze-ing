@@ -1,7 +1,7 @@
 .PHONY: install run debug clean fclean lint lint-strict
 
 .venv/.installed: pyproject.toml
-	POETRY_VIRTUALENVS_IN_PROJECT=true poetry install
+	POETRY_VIRTUALENVS_IN_PROJECT=true poetry install --extras rendering
 	touch .venv/.installed
 
 install: .venv/.installed
@@ -12,6 +12,11 @@ run:
 debug:
 	poetry run python -m pdb a_maze_ing.py config.txt
 
+build-mazegen:
+	poetry build
+	cp dist/mazegen-1.0.0-py3-none-any.whl .
+
+
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
@@ -19,6 +24,9 @@ clean:
 fclean: clean
 	rm -rf .venv
 	rm -f poetry.lock
+	rm -rf dist
+	rm -f mazegen-1.0.0-py3-none-any.whl
+	rm -f mazegen-1.0.0.tar.gz
 
 lint:
 	poetry run flake8 . --exclude .venv
