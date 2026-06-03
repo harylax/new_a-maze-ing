@@ -38,8 +38,8 @@ class MazeMLX:
         self.mlx: Mlx = Mlx()
         self.mlx_ptr: Any = self.mlx.mlx_init()
         self.cell_size: int = self._cell_size()
-        self.win_width: int = self.maze.config.width * self.cell_size
-        self.win_height: int = self.maze.config.height * self.cell_size + 50
+        self.win_width: int = self.maze.width * self.cell_size
+        self.win_height: int = self.maze.height * self.cell_size + 50
         self.win_ptr: Any = self.mlx.mlx_new_window(
             self.mlx_ptr, self.win_width,
             self.win_height, "Ayano.Rai"
@@ -58,8 +58,8 @@ class MazeMLX:
     def _validate_size(self, screen_w: int, screen_h: int) -> None:
         min_cell_size: int = 16
         if (
-            self.maze.config.width * min_cell_size > screen_w
-            or self.maze.config.height * min_cell_size + 100 > screen_h
+            self.maze.width * min_cell_size > screen_w
+            or self.maze.height * min_cell_size + 100 > screen_h
         ):
             raise MazeRendererError(
                 "The size of the maze exceed screen size, "
@@ -68,8 +68,8 @@ class MazeMLX:
                 )
 
     def _cell_size(self) -> int:
-        width = self.maze.config.width
-        height = self.maze.config.height
+        width = self.maze.width
+        height = self.maze.height
         _, screen_w, screen_h = self.mlx.mlx_get_screen_size(
             self.mlx_ptr
             )
@@ -141,8 +141,8 @@ class MazeMLX:
             )
 
     def _draw_full_maze(self) -> None:
-        for y in range(self.maze.config.height):
-            for x in range(self.maze.config.width):
+        for y in range(self.maze.height):
+            for x in range(self.maze.width):
                 self._draw_cell(1, x, y, CELL_COLOR)
                 self._draw_walls(x, y, self.wall_color)
         self._draw_42_pattern()
@@ -153,8 +153,8 @@ class MazeMLX:
         self._interactive_str()
 
     def _show_path_without_animation(self) -> None:
-        for y in range(self.maze.config.height):
-            for x in range(self.maze.config.width):
+        for y in range(self.maze.height):
+            for x in range(self.maze.width):
                 self._draw_cell(1, x, y, CELL_COLOR)
                 self._draw_walls(x, y, self.wall_color)
         self._draw_42_pattern()
@@ -219,7 +219,7 @@ class MazeMLX:
                 10,
                 self.win_height - 50,
                 TEXT_COLOR,
-                f"[a] {self.maze.config.algo.upper()} | "
+                f"[a] {self.maze.algo.upper()} | "
                 "[r] regenerate | [p] path"
                 )
             self.mlx.mlx_string_put(
@@ -237,7 +237,7 @@ class MazeMLX:
                 10,
                 self.win_height - 30,
                 TEXT_COLOR,
-                f"[a] {self.maze.config.algo.upper()} | [r] regenerate | "
+                f"[a] {self.maze.algo.upper()} | [r] regenerate | "
                 "[p] path | [c] color | [esc] quit"
                 )
 
@@ -261,8 +261,8 @@ class MazeMLX:
             self._draw_rect(x, y, wall, cs, color)
 
     def _draw_entry_exit(self) -> None:
-        sx, sy = self.maze.config.entry
-        ex, ey = self.maze.config.exit_
+        sx, sy = self.maze.entry
+        ex, ey = self.maze.exit_
         self._draw_cell(2, sx, sy, ENTRY_COLOR)
         self._draw_cell(2, ex, ey, EXIT_COLOR)
 
@@ -272,10 +272,10 @@ class MazeMLX:
         elif keycode in (ord('r'), ord('R')):
             self._regenerate()
         elif keycode in (ord('a'), ord('A')):
-            if self.maze.config.algo.lower() == 'prim':
-                self.maze.config.algo = 'DFS'
+            if self.maze.algo.lower() == 'prim':
+                self.maze.algo = 'DFS'
             else:
-                self.maze.config.algo = 'prim'
+                self.maze.algo = 'prim'
             self._regenerate()
         elif keycode in (ord('p'), ord('P')):
             if self.maze.solution:
@@ -299,13 +299,23 @@ class MazeMLX:
         return 0
 
     def _regenerate(self) -> None:
-        if self.maze.config.algo.lower() == 'prim':
-            self.maze = MazeGenPrim(self.maze.config)
+        if self.maze.algo.lower() == 'prim':
+            self.maze = MazeGenPrim(
+                self.maze.width, self.maze.height,
+                self.maze.entry, self.maze.exit_,
+                self.maze.output_file, self.maze.perfect,
+                self.maze.seed, self.maze.algo
+                )
         else:
-            self.maze = MazeGenDFS(self.maze.config)
-        if self.maze.config.seed is None:
-            self.maze.config.seed = 0
-        self.maze.config.seed += 1
+            self.maze = MazeGenDFS(
+                self.maze.width, self.maze.height,
+                self.maze.entry, self.maze.exit_,
+                self.maze.output_file, self.maze.perfect,
+                self.maze.seed, self.maze.algo
+                )
+        if self.maze.seed is None:
+            self.maze.seed = 0
+        self.maze.seed += 1
         self.maze.generate()
         self._animation_index = 0
         self._path_displayed = False

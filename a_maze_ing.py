@@ -9,9 +9,19 @@ def main() -> None:
     config = MazeConfig()
     config.parse_config()
     if config.algo.lower() == 'prim':
-        maze: MazeGen = MazeGenPrim(config)
+        maze: MazeGen = MazeGenPrim(
+            config.width, config.height,
+            config.entry, config.exit_,
+            config.output_file, config.perfect,
+            config.seed, config.algo
+            )
     else:
-        maze = MazeGenDFS(config)
+        maze = MazeGenDFS(
+            config.width, config.height,
+            config.entry, config.exit_,
+            config.output_file, config.perfect,
+            config.seed, config.algo
+            )
     maze.generate()
     write_maze(maze)
     visual = MazeMLX(maze)
