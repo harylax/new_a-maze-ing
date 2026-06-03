@@ -12,12 +12,12 @@ def write_maze(maze: MazeGen) -> None:
     directions_str: str = path_to_directions(maze.solution)
     content: str = (
         maze_str + '\n'
-        + f'{maze.config.entry[0]},{maze.config.entry[1]}\n'
-        + f'{maze.config.exit_[0]},{maze.config.exit_[1]}\n'
+        + f'{maze.entry[0]},{maze.entry[1]}\n'
+        + f'{maze.exit_[0]},{maze.exit_[1]}\n'
         + directions_str + '\n'
     )
     try:
-        with open(maze.config.output_file, 'w') as f:
+        with open(maze.output_file, 'w') as f:
             f.write(content)
     except OSError as err:
         raise ConfigError(f"Output file error: {err}")

@@ -4,3 +4,4 @@ output_validator.py
 .venv
 poetry.lock
 maze.txt
+dist
